@@ -20,7 +20,17 @@ $(function() {
 		loadWorkSpaces();
 		return false;
 	});
-
+	
+	$("#closeAllTabsBtn").click(e => {
+		confirmModal("确定关闭目前打开的所有页面吗?", function(){
+			closeAllTabs();
+			chrome.tabs.create({"url": "chrome://newtab/", "active": true}, 
+				function(tab) {
+				}
+			);
+		});
+	});
+	
 	loadWorkSpaces();
 });
 
@@ -61,25 +71,13 @@ var loadWorkSpaces = function() {
 				alertMsg("该工作区不存在", 2);
 				return false;
 			}
-			chrome.tabs.query({}, function(tabs) {
-				workSpaceItem.saveDataTime = nowFormatDate(); 
-				workSpaceItem.spaceTabs = new Array();
-				$.each( tabs, function(i, tab){
-					var storageTab = {};
-					storageTab.id = tab.id
-					storageTab.url = tab.url;
-					storageTab.title = tab.title;
-					workSpaceItem.spaceTabs.push(storageTab);
+			if(workSpaceItem.saveDataTime){
+				confirmModal("确定覆盖工作区【" + workSpaceItem.workSpaceName + "】吗?", function(){
+					saveAllTabs(workSpaceItem);
 				});
-				if(!publicWorkSpaceItems){
-					publicWorkSpaceItems = {};
-				}
-				publicWorkSpaceItems[workSpaceItem.fid] = workSpaceItem;
-				chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
-					loadWorkSpaces();
-					alertMsg("保存成功！", 1);
-				});
-			});
+			} else {
+				saveAllTabs(workSpaceItem);
+			}
 			return false;
 		});
 		
@@ -92,19 +90,16 @@ var loadWorkSpaces = function() {
 				return false;
 			}
 			if(workSpaceItem.spaceTabs){
-				chrome.tabs.query({}, function(tabs) {
-					$.each( tabs, function(i, tab){
-						chrome.tabs.remove(tab.id);
-					});
+				confirmModal("确定切换到工作区【" + workSpaceItem.workSpaceName + "】吗?", function(){
+					closeAllTabs();
+					for(var i = (workSpaceItem.spaceTabs.length - 1); i >=0; i--){
+						var tab = workSpaceItem.spaceTabs[i];
+						chrome.tabs.create({"url": tab.url, "active": false}, 
+							function(tab) {
+							}
+						);
+					}
 				});
-				
-				for(var i = (workSpaceItem.spaceTabs.length - 1); i >=0; i--){
-					var tab = workSpaceItem.spaceTabs[i];
-					chrome.tabs.create({"url": tab.url, "active": false}, 
-						function(tab) {
-						}
-					);
-				}
 				
 			} else {
 				alertMsg("该工作区中没有页面", 2);
@@ -114,17 +109,79 @@ var loadWorkSpaces = function() {
 		
 		$(".delWorkSpaceBtn").click(e => {
 			var fid = $(e.target).data("fid");
-			if((fid in publicWorkSpaceItems) && (delete publicWorkSpaceItems[fid])){
-				chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
-					loadWorkSpaces();
-					alertMsg("删除成功", 1);  
+			if(fid in publicWorkSpaceItems){
+				var workSpaceItem = publicWorkSpaceItems[fid];
+				confirmModal("确定删除工作区【" + workSpaceItem.workSpaceName + "】吗?", function(){
+					if((fid in publicWorkSpaceItems) && (delete publicWorkSpaceItems[fid])){
+						chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
+							loadWorkSpaces();
+							alertMsg("删除成功", 1);  
+						});
+					} else {
+						alertMsg("该工作区不存在", 2);  
+					}
 				});
 			} else {
 				alertMsg("该工作区不存在", 2);  
 			}
+			
 			return false;
 		});
 		
+	});
+}
+
+function saveAllTabs(workSpaceItem){
+	if(workSpaceItem){
+		chrome.tabs.query({}, function(tabs) {
+			workSpaceItem.saveDataTime = nowFormatDate(); 
+			workSpaceItem.spaceTabs = new Array();
+			$.each( tabs, function(i, tab){
+				var storageTab = {};
+				storageTab.id = tab.id
+				storageTab.url = tab.url;
+				storageTab.title = tab.title;
+				workSpaceItem.spaceTabs.push(storageTab);
+			});
+			if(!publicWorkSpaceItems){
+				publicWorkSpaceItems = {};
+			}
+			publicWorkSpaceItems[workSpaceItem.fid] = workSpaceItem;
+			chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
+				loadWorkSpaces();
+				alertMsg("保存成功！", 1);
+			});
+		});
+	}
+}
+
+function confirmModal(msg, okFunction){
+	if(msg){
+		$("#confirmModalBody").text(msg);
+	} else {
+		$("#confirmModalBody").text("");
+	}
+	$("#confirmModalOkBtn").unbind("click");
+	if(okFunction){
+		$("#confirmModalOkBtn").click(e => {
+			$('#confirmModal').modal('hide');
+			okFunction(e);
+			return false;
+		});
+	} else {
+		$("#confirmModalOkBtn").click(e => {
+			$('#confirmModal').modal('hide');
+			return false;
+		});
+	}
+	$('#confirmModal').modal();
+}
+
+function closeAllTabs(){
+	chrome.tabs.query({}, function(tabs) {
+		$.each( tabs, function(i, tab){
+			chrome.tabs.remove(tab.id);
+		});
 	});
 }
 

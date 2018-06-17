@@ -32,6 +32,7 @@
 				<input type="text" class="form-control" placeholder="工作区名称" id="newWorkSpaceNameInput" />
 			</div>
 			<input type="button" value="新建工作区" id="newWorkSpaceBtn"  class="btn btn-primary mb-2" />
+			<input type="button" value="关闭所有打开的页面" id="closeAllTabsBtn"  class="btn btn-danger mb-2" />
 		</form>
 
 		
@@ -80,7 +81,21 @@
 			</tbody>
 		</table>
 
-		
+		<!-- Modal -->
+		<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="确认" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+						<div class="modal-content">
+								<div class="modal-body" id="confirmModalBody">
+										...
+								</div>
+								<div class="modal-footer">
+										<button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+										<button type="button" class="btn btn-success" id="confirmModalOkBtn">确定</button>
+								</div>
+						</div>
+				</div>
+		</div>
+
 		
 		<script type="text/javascript" src="js/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
 		<script type="text/javascript" src="js/bootstrap.min.js" crossorigin="anonymous"></script>
