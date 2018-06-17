@@ -5,7 +5,7 @@ $(function() {
 	$("#newWorkSpaceBtn").click(e => {
 		if($.trim($("#newWorkSpaceNameInput").val()) == ""){
 			$("#newWorkSpaceNameInput").val("");
-			alert("请输入工作区名称！");
+			alertMsg("请输入工作区名称！", 2);
 			return false;
 		}
 		var workSpaceItem = {};
@@ -15,8 +15,7 @@ $(function() {
 		publicWorkSpaceItems[workSpaceItem.fid] = workSpaceItem;
 		chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
 			$("#newWorkSpaceNameInput").val("");
-			console.log("新建成功！");
-			alert("新建成功！");
+			alertMsg("新建成功！", 1);
 		});
 		loadWorkSpaces();
 		return false;
@@ -33,7 +32,7 @@ var loadWorkSpaces = function() {
 	chrome.storage.sync.get(workSpacesStorageKey, function(workSpaceItems) {
 		publicWorkSpaceItems = workSpaceItems.workSpaces;
 		$("#workSpacesDiv").html("");
-		var tableHtml = "<table>"
+		var tableHtml = ""
 		
 		// 排序
 		var sortedObjKeys = Object.keys(workSpaceItems.workSpaces).sort();
@@ -41,15 +40,16 @@ var loadWorkSpaces = function() {
 		for (var index in sortedObjKeys) {
 			var workSpaceItem = workSpaceItems.workSpaces[sortedObjKeys[index]];
 			tableHtml = tableHtml + "<tr>";
-			tableHtml = tableHtml + "<td>" + workSpaceItem.workSpaceName + "</td>";
-			tableHtml = tableHtml + "<td><input type='button' data-fid='" + workSpaceItem.fid + "' value='保存当前打开的页面' class='saveAllTabsBtn' /></td>";
-			tableHtml = tableHtml + "<td><input type='button' data-fid='" + workSpaceItem.fid + "' value='切换' class='switch2WorkSpaceBtn' /></td>";
-			tableHtml = tableHtml + "<td><input type='button' data-fid='" + workSpaceItem.fid + "' value='删除' class='delWorkSpaceBtn' /></td>";
-			tableHtml = tableHtml + "<td>保存时间:" + (workSpaceItem.saveDataTime ? workSpaceItem.saveDataTime : "未保存") + "</td>";
+			tableHtml = tableHtml + "<th scope='row'>" + workSpaceItem.workSpaceName + "</th>";
+			tableHtml = tableHtml + "<td>" + (workSpaceItem.saveDataTime ? workSpaceItem.saveDataTime : "未保存") + "</td>";
+			tableHtml = tableHtml + "<td><div class='btn-group' role='group' aria-label='操作'>";
+			tableHtml = tableHtml + "<button type='button' class='btn btn-success saveAllTabsBtn' data-fid='" + workSpaceItem.fid + "'>保存当前打开的页面</button>";
+			tableHtml = tableHtml + "<button type='button' class='btn btn-primary switch2WorkSpaceBtn' data-fid='" + workSpaceItem.fid + "'>切换</button>";
+			tableHtml = tableHtml + "<button type='button' class='btn btn-danger delWorkSpaceBtn' data-fid='" + workSpaceItem.fid + "'>删除</button>";
+			tableHtml = tableHtml + "</div></td>";
 			tableHtml = tableHtml + "</tr>";
 		}
 		
-		tableHtml = tableHtml + "</table>"
 		$("#workSpacesDiv").append(tableHtml);
 		
 		// ======================注册事件==========================================
@@ -58,8 +58,7 @@ var loadWorkSpaces = function() {
 			var fid = $(e.target).data("fid");
 			var workSpaceItem = publicWorkSpaceItems[fid];
 			if(!workSpaceItem){
-				console.log("该工作区不存在");
-				alert("该工作区不存在");
+				alertMsg("该工作区不存在", 2);
 				return false;
 			}
 			chrome.tabs.query({}, function(tabs) {
@@ -78,8 +77,7 @@ var loadWorkSpaces = function() {
 				publicWorkSpaceItems[workSpaceItem.fid] = workSpaceItem;
 				chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
 					loadWorkSpaces();
-					console.log("保存成功！");
-					alert("保存成功！");
+					alertMsg("保存成功！", 1);
 				});
 			});
 			return false;
@@ -90,8 +88,7 @@ var loadWorkSpaces = function() {
 			var fid = $(e.target).data("fid");
 			var workSpaceItem = publicWorkSpaceItems[fid];
 			if(!workSpaceItem){
-				console.log("该工作区不存在");
-				alert("该工作区不存在");
+				alertMsg("该工作区不存在", 2);
 				return false;
 			}
 			if(workSpaceItem.spaceTabs){
@@ -110,8 +107,7 @@ var loadWorkSpaces = function() {
 				}
 				
 			} else {
-				console.log("该工作区中没有页面");
-				alert("该工作区中没有页面");
+				alertMsg("该工作区中没有页面", 2);
 			}
 			return false;
 		});
@@ -121,12 +117,10 @@ var loadWorkSpaces = function() {
 			if((fid in publicWorkSpaceItems) && (delete publicWorkSpaceItems[fid])){
 				chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
 					loadWorkSpaces();
-					console.log("删除成功");
-					alert("删除成功");  
+					alertMsg("删除成功", 1);  
 				});
 			} else {
-				console.log("该工作区不存在");
-				alert("该工作区不存在");  
+				alertMsg("该工作区不存在", 2);  
 			}
 			return false;
 		});
@@ -177,4 +171,14 @@ function nowFormatDate() {
             + " " + hours + seperator2 + minutes
             + seperator2 + seconds;
     return currentdate;
+}
+
+function alertMsg(msg, type){
+	if(type && type == 1){
+		$("#successMsg").text(msg);
+		$("#successDiv").show();
+	} else {
+		$("#faildMsg").text(msg);
+		$("#faildDiv").show();
+	}
 }

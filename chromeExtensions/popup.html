@@ -3,24 +3,87 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>tabs工作区</title>
+		<link rel="stylesheet" href="css/bootstrap.min.css" crossorigin="anonymous">
 		<style>
 			body {
-				width: 500px;
+				margin-top: 20px;
+				width: 600px;
 				min-height: 100px;
 			}
-			a {margin-right: 10px;}
 		</style>
 	</head>
 	<body>
-		<div id="workSpacesDiv">
-		</div>
-		<div>
-			<input type="text" id="newWorkSpaceNameInput" />
-			<input type="button" value="新建工作区" id="newWorkSpaceBtn" />
+		<div class="alert alert-success" id="successDiv" role="alert" style="display: none;">
+				<span id="successMsg">successMsg</span>
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+				</button>
 		</div>
 		
+		<div class="alert alert-danger" id="faildDiv" role="alert" style="display: none;">
+				<span id="faildMsg">faildMsg</span>
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+				</button>
+		</div>
+
+		<form class="form-inline">
+			<div class="form-group mx-sm-3 mb-2">
+				<input type="text" class="form-control" placeholder="工作区名称" id="newWorkSpaceNameInput" />
+			</div>
+			<input type="button" value="新建工作区" id="newWorkSpaceBtn"  class="btn btn-primary mb-2" />
+		</form>
+
 		
-		<script type="text/javascript" src="js/jquery-1.8.3.js"></script>
+		<table class="table">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col">工作区名称</th>
+					<th scope="col">保存时间</th>
+					<th scope="col">操作</th>
+				</tr>
+			</thead>
+			<tbody id="workSpacesDiv">
+				<tr>
+					<th scope="row">收发文访问</th>
+					<td>2018-06-17 18:11:45</td>
+					<td>
+						<div class="btn-group" role="group" aria-label="操作">
+							<button type="button" class="btn btn-success">保存当前打开的页面</button>
+							<button type="button" class="btn btn-primary">切换</button>
+							<button type="button" class="btn btn-danger">删除</button>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">撒发生的</th>
+					<td>2018-06-17 18:11:45</td>
+					<td>
+						<div class="btn-group" role="group" aria-label="操作">
+							<button type="button" class="btn btn-success">保存当前打开的页面</button>
+							<button type="button" class="btn btn-primary">切换</button>
+							<button type="button" class="btn btn-danger">删除</button>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">发撒旦发射点发但是</th>
+					<td>2018-06-17 18:11:45</td>
+					<td>
+						<div class="btn-group" role="group" aria-label="操作">
+							<button type="button" class="btn btn-success">保存当前打开的页面</button>
+							<button type="button" class="btn btn-primary">切换</button>
+							<button type="button" class="btn btn-danger">删除</button>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		
+		
+		<script type="text/javascript" src="js/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+		<script type="text/javascript" src="js/bootstrap.min.js" crossorigin="anonymous"></script>
 		<script type="text/javascript" src="js/popup.js"></script>
 	</body>
 </html>
