@@ -3,20 +3,26 @@ $(function() {
 
 	// 新建工作区
 	$("#newWorkSpaceBtn").click(e => {
+		if($.trim($("#newWorkSpaceNameInput").val()) == ""){
+			$("#newWorkSpaceNameInput").val("");
+			alert("请输入工作区名称！");
+			return false;
+		}
 		var workSpaceItem = {};
 		// workSpaceItem.fid = uuid();
 		workSpaceItem.fid = new Date().getTime();
 		workSpaceItem.workSpaceName = $("#newWorkSpaceNameInput").val();
 		publicWorkSpaceItems[workSpaceItem.fid] = workSpaceItem;
 		chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
+			$("#newWorkSpaceNameInput").val("");
 			console.log("新建成功！");
 			alert("新建成功！");
 		});
 		loadWorkSpaces();
+		return false;
 	});
 
 	loadWorkSpaces();
-	
 });
 
 /*
@@ -39,6 +45,7 @@ var loadWorkSpaces = function() {
 			tableHtml = tableHtml + "<td><input type='button' data-fid='" + workSpaceItem.fid + "' value='保存当前打开的页面' class='saveAllTabsBtn' /></td>";
 			tableHtml = tableHtml + "<td><input type='button' data-fid='" + workSpaceItem.fid + "' value='切换' class='switch2WorkSpaceBtn' /></td>";
 			tableHtml = tableHtml + "<td><input type='button' data-fid='" + workSpaceItem.fid + "' value='删除' class='delWorkSpaceBtn' /></td>";
+			tableHtml = tableHtml + "<td>保存时间:" + (workSpaceItem.saveDataTime ? workSpaceItem.saveDataTime : "未保存") + "</td>";
 			tableHtml = tableHtml + "</tr>";
 		}
 		
@@ -56,12 +63,21 @@ var loadWorkSpaces = function() {
 				return false;
 			}
 			chrome.tabs.query({}, function(tabs) {
-				workSpaceItem.spaceTabs = tabs;
+				workSpaceItem.saveDataTime = nowFormatDate(); 
+				workSpaceItem.spaceTabs = new Array();
+				$.each( tabs, function(i, tab){
+					var storageTab = {};
+					storageTab.id = tab.id
+					storageTab.url = tab.url;
+					storageTab.title = tab.title;
+					workSpaceItem.spaceTabs.push(storageTab);
+				});
 				if(!publicWorkSpaceItems){
 					publicWorkSpaceItems = {};
 				}
 				publicWorkSpaceItems[workSpaceItem.fid] = workSpaceItem;
 				chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
+					loadWorkSpaces();
 					console.log("保存成功！");
 					alert("保存成功！");
 				});
@@ -85,12 +101,14 @@ var loadWorkSpaces = function() {
 					});
 				});
 				
-				$.each( workSpaceItem.spaceTabs, function(i, tab){
+				for(var i = (workSpaceItem.spaceTabs.length - 1); i >=0; i--){
+					var tab = workSpaceItem.spaceTabs[i];
 					chrome.tabs.create({"url": tab.url, "active": false}, 
 						function(tab) {
 						}
 					);
-				});
+				}
+				
 			} else {
 				console.log("该工作区中没有页面");
 				alert("该工作区中没有页面");
@@ -129,3 +147,34 @@ function uuid() {
     var uuid = s.join(""); 
     return uuid; 
 } 
+
+function nowFormatDate() {
+    var date = new Date();
+    var seperator1 = "-";
+    var seperator2 = ":";
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+	var hours = date.getHours();
+	var minutes = date.getMinutes();
+	var seconds = date.getSeconds();
+	if (hours >= 0 && hours <= 9) {
+		hours = "0" + hours;
+	}
+	if (minutes >= 0 && minutes <= 9) {
+		minutes = "0" + minutes;
+	}
+	if (seconds >= 0 && seconds <= 9) {
+		seconds = "0" + seconds;
+	}
+	
+    var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+            + " " + hours + seperator2 + minutes
+            + seperator2 + seconds;
+    return currentdate;
+}
