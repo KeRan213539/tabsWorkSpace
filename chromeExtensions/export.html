@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="css/bootstrap.min.css" crossorigin="anonymous">
+		<link rel="stylesheet" href="css/monokai-sublime.css" crossorigin="anonymous">
+		<title>导出</title>
+		<style type="text/css">
+			.snippet{
+				position: relative;
+    			overflow: visible;
+    			top: -10px;
+			}
+			.snippet code {
+			    font-size: 14px;
+			    line-height: 20px;
+			}
+			
+			.snippet .btn {
+			    top: 22px;
+			    right: 2px;
+			    transition: opacity .3s ease-in-out;
+			    opacity: 0;
+			    padding: 2px 6px;
+			    position: absolute;
+			    display: inline-block;
+			    font-size: 13px;
+			    font-weight: 700;
+			    line-height: 20px;
+			    color: #333;
+			    white-space: nowrap;
+			    vertical-align: middle;
+			    cursor: pointer;
+			    background-color: #eee;
+			    background-image: linear-gradient(#fcfcfc,#eee);
+			    border: 1px solid #d5d5d5;
+			    border-radius: 3px;
+			    user-select: none;
+			    -webkit-appearance: none;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<div class="alert alert-success" id="successDiv" role="alert" style="display: none;">
+				<span id="successMsg">successMsg</span>
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+				</button>
+		</div>
+		
+		<div class="alert alert-danger" id="faildDiv" role="alert" style="display: none;">
+				<span id="faildMsg">faildMsg</span>
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+				</button>
+		</div>
+		<div style="margin-top: 10px;">
+			<input type="button" value="下载" id="downloadBtn" class="btn btn-success mb-2" />
+		</div>
+		<pre id="snippet" class="snippet">
+			<button class="btn" data-clipboard-snippet="">
+				<img class="clippy" width="13" src="img/clippy.svg" alt="复制到剪切板">
+			</button>
+			<code id="exportData" class="json"></code>
+		</pre>
+		<script type="text/javascript" src="js/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+		<script type="text/javascript" src="js/bootstrap.min.js" crossorigin="anonymous"></script>
+		<script type="text/javascript" src="js/highlight.pack.js"></script>
+		<script type="text/javascript" src="js/clipboard.min.js"></script>
+		<script type="text/javascript" src="js/export.js"></script>
+	</body>
+</html>

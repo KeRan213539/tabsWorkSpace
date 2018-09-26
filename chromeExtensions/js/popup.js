@@ -22,13 +22,67 @@ $(function() {
 	});
 	
 	$("#closeAllTabsBtn").click(e => {
-		confirmModal("确定关闭目前打开的所有页面吗?", function(){
+		confirmModal("确定关闭目前打开的所有页面吗?", e => {
 			closeAllTabs();
 			chrome.tabs.create({"url": "chrome://newtab/", "active": true}, 
 				function(tab) {
 				}
 			);
 		});
+	});
+	
+	$("#exportBtn").click(e => {
+		confirmModal("确定导出工作空间数据吗?", e => {
+			chrome.tabs.create({"url": "./export.html", "active": true}, 
+				function(tab) {
+				}
+			);
+		});
+	});
+	
+	$("#importBtn").click(e => {
+	    $("#importFileSelect").click();
+	});
+	
+	$("#importFileSelect").unbind("change").change(e => {
+	    var files = $("#importFileSelect")[0].files;
+	    if(files.length) {
+            var file = files[0];
+            var reader = new FileReader();
+            if(/json+/.test(file.type)) {
+                reader.onload = (e) => {
+                    if(!e.currentTarget.result){
+                        alertMsg("读取数据发生异常,导入失败！", 2);
+                        return false;
+                    }
+                    var result = e.currentTarget.result;
+                    if(publicWorkSpaceItems && Object.keys(publicWorkSpaceItems).length > 0) {
+                        confirmModal("目前已经有数据,确定覆盖吗?", e => {
+                            publicWorkSpaceItems = JSON.parse(result);
+                            chrome.storage.sync.set({
+                                workSpaces: publicWorkSpaceItems
+                            }, function() {
+                                alertMsg("导入成功！", 1);
+                            });
+                            loadWorkSpaces();
+                        });
+                    } else {
+                        publicWorkSpaceItems = JSON.parse(result);
+                        chrome.storage.sync.set({
+                            workSpaces: publicWorkSpaceItems
+                        }, function() {
+                            alertMsg("导入成功！", 1);
+                        });
+                        loadWorkSpaces();
+                    }
+        
+                }
+                reader.readAsText(file);
+            } else {
+                alertMsg("文件类型不正确！", 2);
+            }
+        }
+	    $("#importFileSelect").val("");
 	});
 	
 	loadWorkSpaces();
@@ -39,7 +93,7 @@ $(function() {
  */
 var loadWorkSpaces = function() {
 	var workSpacesStorageKey = {workSpaces: {}}; // 默认配置
-	chrome.storage.sync.get(workSpacesStorageKey, function(workSpaceItems) {
+	chrome.storage.sync.get(workSpacesStorageKey, workSpaceItems => {
 		publicWorkSpaceItems = workSpaceItems.workSpaces;
 		$("#workSpacesDiv").html("");
 		var tableHtml = ""
