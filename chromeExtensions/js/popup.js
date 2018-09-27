@@ -46,7 +46,7 @@ $(function() {
 	    if(files.length) {
             var file = files[0];
             var reader = new FileReader();
-            if(/json+/.test(file.type)) {
+            if(/json+/.test(file.type) || /json+/.test(file.name)) {
                 reader.onload = (e) => {
                     if(!e.currentTarget.result){
                         alertMsg("读取数据发生异常,导入失败！", 2);
