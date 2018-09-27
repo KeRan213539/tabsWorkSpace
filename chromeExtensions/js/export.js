@@ -1,42 +1,15 @@
 $(function() {
-	var workSpacesStorageKey = {workSpaces: {}}; // 默认配置
-	chrome.storage.sync.get(workSpacesStorageKey, workSpaceItems => {
-		publicWorkSpaceItems = workSpaceItems.workSpaces;
-		
-//		var tableHtml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-//		tableHtml = tableHtml + "<tabsWorkSpace>\n";
-//		
-//		// 排序
-//		var sortedObjKeys = Object.keys(workSpaceItems.workSpaces).sort();
-//		
-//		for (var index in sortedObjKeys) {
-//			var workSpaceItem = workSpaceItems.workSpaces[sortedObjKeys[index]];
-//			tableHtml = tableHtml + "    <space>\n";
-//			tableHtml = tableHtml + "       <spaceId>" + workSpaceItem.fid + "</spaceId>\n";
-//			tableHtml = tableHtml + "       <spaceName>" + workSpaceItem.workSpaceName + "</spaceName>\n";
-//			tableHtml = tableHtml + "       <spaceSaveDataTime>" + workSpaceItem.saveDataTime + "</spaceSaveDataTime>\n";
-//			if(workSpaceItem.spaceTabs){
-//				tableHtml = tableHtml + "       <tabItems>\n";
-//				for(var i = (workSpaceItem.spaceTabs.length - 1); i >=0; i--){
-//					var tab = workSpaceItem.spaceTabs[i];
-//					tableHtml = tableHtml + "          <tabItem>\n";
-//					tableHtml = tableHtml + "              <tabName>" + tab.url + "</tabName>\n";
-//					tableHtml = tableHtml + "          </tabItem>\n";
-//				}
-//				tableHtml = tableHtml + "       </tabItems>\n";
-//			}
-//			tableHtml = tableHtml + "    </space>\n";
-//		}
-//		
-//		tableHtml = tableHtml + "</tabsWorkSpace>\n";
-//		$("#exportData").text(tableHtml);
-        $("#exportData").text(JSON.stringify(workSpaceItems.workSpaces, null, 4));
-		$("#exportData").each((i, block) =>  {
-		    hljs.highlightBlock(block);
-		});
-		
-	});
-	
+    
+    dbUtil.initDB(() => {
+        dbUtil.findAll(workSpaceItems => {
+            $("#exportData").text(JSON.stringify(workSpaceItems, null, 4));
+            $("#exportData").each((i, block) =>  {
+                hljs.highlightBlock(block);
+            });
+        });
+    });
+    
+    
 	$("#snippet").mousemove(e => {
 		$(".snippet .btn").css("top", $("#exportData").offset().top - 30);
 		$(".snippet .btn").css("opacity", 1);

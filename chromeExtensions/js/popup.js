@@ -1,4 +1,3 @@
-var publicWorkSpaceItems;
 $(function() {
 
 	// 新建工作区
@@ -8,15 +7,13 @@ $(function() {
 			alertMsg("请输入工作区名称！", 2);
 			return false;
 		}
-		var workSpaceItem = {};
+		var workSpaceItem = new WorkSpaceItem();
 		// workSpaceItem.fid = uuid();
 		workSpaceItem.fid = new Date().getTime();
 		workSpaceItem.workSpaceName = $("#newWorkSpaceNameInput").val();
-		publicWorkSpaceItems[workSpaceItem.fid] = workSpaceItem;
-		chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
-			$("#newWorkSpaceNameInput").val("");
-			alertMsg("新建成功！", 1);
-		});
+		dbUtil.save(workSpaceItem);
+		$("#newWorkSpaceNameInput").val("");
+		alertMsg("新建成功！", 1);
 		loadWorkSpaces();
 		return false;
 	});
@@ -56,26 +53,12 @@ $(function() {
                         return false;
                     }
                     var result = e.currentTarget.result;
-                    if(publicWorkSpaceItems && Object.keys(publicWorkSpaceItems).length > 0) {
-                        confirmModal("目前已经有数据,确定覆盖吗?", e => {
-                            publicWorkSpaceItems = JSON.parse(result);
-                            chrome.storage.sync.set({
-                                workSpaces: publicWorkSpaceItems
-                            }, function() {
-                                alertMsg("导入成功！", 1);
-                            });
-                            loadWorkSpaces();
-                        });
-                    } else {
-                        publicWorkSpaceItems = JSON.parse(result);
-                        chrome.storage.sync.set({
-                            workSpaces: publicWorkSpaceItems
-                        }, function() {
-                            alertMsg("导入成功！", 1);
-                        });
-                        loadWorkSpaces();
+                    var workSpaceItems = JSON.parse(result);
+                    for(var workSpaceItem in workSpaceItems){
+                        dbUtil.save(workSpaceItems[workSpaceItem]);
                     }
-        
+                    alertMsg("导入成功！", 1);
+                    loadWorkSpaces();
                 }
                 reader.readAsText(file);
             } else {
@@ -85,104 +68,115 @@ $(function() {
 	    $("#importFileSelect").val("");
 	});
 	
-	loadWorkSpaces();
+	dbUtil.initDB(loadWorkSpaces);
 });
 
 /*
  * 加载工作区
  */
 var loadWorkSpaces = function() {
-	var workSpacesStorageKey = {workSpaces: {}}; // 默认配置
-	chrome.storage.sync.get(workSpacesStorageKey, workSpaceItems => {
-		publicWorkSpaceItems = workSpaceItems.workSpaces;
-		$("#workSpacesDiv").html("");
-		var tableHtml = ""
-		
-		// 排序
-		var sortedObjKeys = Object.keys(workSpaceItems.workSpaces).sort();
-		
-		for (var index in sortedObjKeys) {
-			var workSpaceItem = workSpaceItems.workSpaces[sortedObjKeys[index]];
-			tableHtml = tableHtml + "<tr>";
-			tableHtml = tableHtml + "<th scope='row'>" + workSpaceItem.workSpaceName + "</th>";
-			tableHtml = tableHtml + "<td>" + (workSpaceItem.saveDataTime ? workSpaceItem.saveDataTime : "未保存") + "</td>";
-			tableHtml = tableHtml + "<td><div class='btn-group' role='group' aria-label='操作'>";
-			tableHtml = tableHtml + "<button type='button' class='btn btn-success saveAllTabsBtn' data-fid='" + workSpaceItem.fid + "'>保存当前打开的页面</button>";
-			tableHtml = tableHtml + "<button type='button' class='btn btn-primary switch2WorkSpaceBtn' data-fid='" + workSpaceItem.fid + "'>切换</button>";
-			tableHtml = tableHtml + "<button type='button' class='btn btn-danger delWorkSpaceBtn' data-fid='" + workSpaceItem.fid + "'>删除</button>";
-			tableHtml = tableHtml + "</div></td>";
-			tableHtml = tableHtml + "</tr>";
-		}
-		
-		$("#workSpacesDiv").append(tableHtml);
-		
-		// ======================注册事件==========================================
-		// 保存当前打开的所有tab到空间
-		$(".saveAllTabsBtn").click(e => {
-			var fid = $(e.target).data("fid");
-			var workSpaceItem = publicWorkSpaceItems[fid];
-			if(!workSpaceItem){
-				alertMsg("该工作区不存在", 2);
-				return false;
-			}
-			if(workSpaceItem.saveDataTime){
-				confirmModal("确定覆盖工作区【" + workSpaceItem.workSpaceName + "】吗?", function(){
-					saveAllTabs(workSpaceItem);
-				});
-			} else {
-				saveAllTabs(workSpaceItem);
-			}
-			return false;
-		});
-		
-		// 切换工作区
-		$(".switch2WorkSpaceBtn").click(e => {
-			var fid = $(e.target).data("fid");
-			var workSpaceItem = publicWorkSpaceItems[fid];
-			if(!workSpaceItem){
-				alertMsg("该工作区不存在", 2);
-				return false;
-			}
-			if(workSpaceItem.spaceTabs){
-				confirmModal("确定切换到工作区【" + workSpaceItem.workSpaceName + "】吗?", function(){
-					closeAllTabs();
-					for(var i = (workSpaceItem.spaceTabs.length - 1); i >=0; i--){
-						var tab = workSpaceItem.spaceTabs[i];
-						chrome.tabs.create({"url": tab.url, "active": false}, 
-							function(tab) {
-							}
-						);
-					}
-				});
-				
-			} else {
-				alertMsg("该工作区中没有页面", 2);
-			}
-			return false;
-		});
-		
-		$(".delWorkSpaceBtn").click(e => {
-			var fid = $(e.target).data("fid");
-			if(fid in publicWorkSpaceItems){
-				var workSpaceItem = publicWorkSpaceItems[fid];
-				confirmModal("确定删除工作区【" + workSpaceItem.workSpaceName + "】吗?", function(){
-					if((fid in publicWorkSpaceItems) && (delete publicWorkSpaceItems[fid])){
-						chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
-							loadWorkSpaces();
-							alertMsg("删除成功", 1);  
-						});
-					} else {
-						alertMsg("该工作区不存在", 2);  
-					}
-				});
-			} else {
-				alertMsg("该工作区不存在", 2);  
-			}
-			
-			return false;
-		});
-		
-	});
+    dbUtil.findAll(workSpaceItems => {
+        buildDataList(workSpaceItems);
+    });
+}
+
+var buildDataList = function(workSpaceItems){
+    $("#workSpacesDiv").html("");
+    var tableHtml = ""
+    
+    // 排序
+    var sortedObjKeys = Object.keys(workSpaceItems).sort();
+    
+    for (var index in sortedObjKeys) {
+        var workSpaceItem = workSpaceItems[sortedObjKeys[index]];
+        tableHtml = tableHtml + "<tr>";
+        tableHtml = tableHtml + "<th scope='row'>" + workSpaceItem.workSpaceName + "</th>";
+        tableHtml = tableHtml + "<td>" + (workSpaceItem.saveDataTime ? workSpaceItem.saveDataTime : "未保存") + "</td>";
+        tableHtml = tableHtml + "<td><div class='btn-group' role='group' aria-label='操作'>";
+        tableHtml = tableHtml + "<button type='button' class='btn btn-success saveAllTabsBtn' data-fid='" + workSpaceItem.fid + "'>保存当前打开的页面</button>";
+        tableHtml = tableHtml + "<button type='button' class='btn btn-primary switch2WorkSpaceBtn' data-fid='" + workSpaceItem.fid + "'>切换</button>";
+        tableHtml = tableHtml + "<button type='button' class='btn btn-danger delWorkSpaceBtn' data-fid='" + workSpaceItem.fid + "'>删除</button>";
+        tableHtml = tableHtml + "</div></td>";
+        tableHtml = tableHtml + "</tr>";
+    }
+    
+    $("#workSpacesDiv").append(tableHtml);
+    
+    // ======================注册事件==========================================
+    // 保存当前打开的所有tab到空间
+    $(".saveAllTabsBtn").click(e => {
+        var fid = $(e.target).data("fid");
+        dbUtil.findById(fid, workSpaceItem => {
+            
+            if(!workSpaceItem) {
+               alertMsg("该工作区不存在", 2);
+               return false;
+           }
+           if(workSpaceItem.saveDataTime) {
+               confirmModal("确定覆盖工作区【" + workSpaceItem.workSpaceName + "】吗?", function() {
+                   saveAllTabs(workSpaceItem);
+               });
+           } else {
+               saveAllTabs(workSpaceItem);
+           }
+            
+        });
+        return false;
+    });
+    
+    // 切换工作区
+    $(".switch2WorkSpaceBtn").click(e => {
+        var fid = $(e.target).data("fid");
+        dbUtil.findById(fid, workSpaceItem => {
+            
+            if(!workSpaceItem) {
+                alertMsg("该工作区不存在", 2);
+                return false;
+            }
+            if(workSpaceItem.spaceTabs) {
+                confirmModal("确定切换到工作区【" + workSpaceItem.workSpaceName + "】吗?", function() {
+                    closeAllTabs();
+                    for(var i = (workSpaceItem.spaceTabs.length - 1); i >= 0; i--) {
+                        var tab = workSpaceItem.spaceTabs[i];
+                        chrome.tabs.create({
+                                "url": tab.url,
+                                "active": false
+                            },
+                            function(tab) {}
+                        );
+                    }
+                });
+
+            } else {
+                alertMsg("该工作区中没有页面", 2);
+            }
+            
+        });
+        return false;
+    });
+    
+    $(".delWorkSpaceBtn").click(e => {
+        var fid = $(e.target).data("fid");
+        dbUtil.findById(fid, workSpaceItem => {
+            
+            if(workSpaceItem && workSpaceItem.fid) {
+                confirmModal("确定删除工作区【" + workSpaceItem.workSpaceName + "】吗?", function() {
+                    //              if((fid in publicWorkSpaceItems) && (delete publicWorkSpaceItems[fid])){
+                    dbUtil.del(fid);
+                    loadWorkSpaces();
+                    alertMsg("删除成功", 1);
+                    //              } else {
+                    //                  alertMsg("该工作区不存在", 2);  
+                    //              }
+                });
+            } else {
+                alertMsg("该工作区不存在", 2);
+            }
+            
+        });
+        
+        return false;
+    });
 }
 
 function saveAllTabs(workSpaceItem){
@@ -197,14 +191,9 @@ function saveAllTabs(workSpaceItem){
 				storageTab.title = tab.title;
 				workSpaceItem.spaceTabs.push(storageTab);
 			});
-			if(!publicWorkSpaceItems){
-				publicWorkSpaceItems = {};
-			}
-			publicWorkSpaceItems[workSpaceItem.fid] = workSpaceItem;
-			chrome.storage.sync.set({workSpaces: publicWorkSpaceItems}, function() {
-				loadWorkSpaces();
-				alertMsg("保存成功！", 1);
-			});
+			dbUtil.save(workSpaceItem);
+			loadWorkSpaces();
+			alertMsg("保存成功！", 1);
 		});
 	}
 }
