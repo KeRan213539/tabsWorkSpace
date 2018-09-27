@@ -10,8 +10,8 @@ var WorkSpaceItem = function() {
     this.saveDataTime =  "";  // 保存时间
     this.spaceTabs =  [];  // 工作区中的页面
 }
+// %USERPROFILE%\AppData\Local\Google\Chrome\User Data\Default\IndexedDB
 var dbUtil = {
-    indexedDB: window.indexedDB,
     db: {},
     initDB: (successFun) =>{
         var request = window.indexedDB.open("tabsWorkSpaceDB", 1);
@@ -20,11 +20,12 @@ var dbUtil = {
         }
         request.onupgradeneeded   = function(event){
             console.log("DB升级中...");
-            dbUtil.db = event.target.result;
-            dbUtil.db.createObjectStore("workSpace", { keyPath : "fid" });
-            if(successFun){
-               successFun();
-           }
+            var db = event.target.result;
+            var objectStore = db.createObjectStore("workSpace", { keyPath : "fid" });
+            objectStore.createIndex('fid', 'fid', {
+                unique: true    
+            });
+            // onupgradeneeded 执行完后会再到 onsuccess 的
         };
         request.onsuccess  = function(event){
            dbUtil.db = event.target.result;
