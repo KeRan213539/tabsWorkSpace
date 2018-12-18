@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="css/bootstrap.min.css" crossorigin="anonymous">
+		<title>管理</title>
+		<style>
+            body {
+                margin-top: 20px;
+                width: 700px;
+                min-height: 100px;
+            }
+        </style>
+	</head>
+	<body>
+		<div class="p-3 mb-2 bg-primary text-white" id="titleDiv">管理</div>
+		<div id="alertsDiv"></div>
+		<input type="button" value="返回" id="backBtn" class="btn btn-outline-primary mb-2" style="width:200px; margin-left: 8px;"/>
+		
+		<table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">页面名称</th>
+                    <th scope="col">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tablistDiv">
+            </tbody>
+        </table>
+		
+		<script type="text/javascript" src="js/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+		<script type="text/javascript" src="js/bootstrap.min.js" crossorigin="anonymous"></script>
+		<script type="text/javascript" src="js/common.js"></script>
+		<script type="text/javascript" src="js/spackAdmin.js"></script>
+	</body>
+</html>

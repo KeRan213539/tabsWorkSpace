@@ -4,7 +4,7 @@ $(function() {
 	$("#newWorkSpaceBtn").click(e => {
 		if($.trim($("#newWorkSpaceNameInput").val()) == ""){
 			$("#newWorkSpaceNameInput").val("");
-			alertMsg("请输入工作区名称！", 2);
+			pageUtil.alertMsg("请输入工作区名称！", 2);
 			return false;
 		}
 		var workSpaceItem = new WorkSpaceItem();
@@ -13,13 +13,13 @@ $(function() {
 		workSpaceItem.workSpaceName = $("#newWorkSpaceNameInput").val();
 		dbUtil.save(workSpaceItem);
 		$("#newWorkSpaceNameInput").val("");
-		alertMsg("新建成功！", 1);
+		pageUtil.alertMsg("新建成功！", 1);
 		loadWorkSpaces();
 		return false;
 	});
 	
 	$("#closeAllTabsBtn").click(e => {
-		confirmModal("确定关闭目前打开的所有页面吗?", e => {
+		pageUtil.confirmModal("确定关闭目前打开的所有页面吗?", e => {
 			closeAllTabs();
 			chrome.tabs.create({"url": "chrome://newtab/", "active": true}, 
 				function(tab) {
@@ -29,7 +29,7 @@ $(function() {
 	});
 	
 	$("#exportBtn").click(e => {
-		confirmModal("确定导出工作空间数据吗?", e => {
+		pageUtil.confirmModal("确定导出工作空间数据吗?", e => {
 			chrome.tabs.create({"url": "./export.html", "active": true}, 
 				function(tab) {
 				}
@@ -49,7 +49,7 @@ $(function() {
             if(/json+/.test(file.type) || /json+/.test(file.name)) {
                 reader.onload = (e) => {
                     if(!e.currentTarget.result){
-                        alertMsg("读取数据发生异常,导入失败！", 2);
+                        pageUtil.alertMsg("读取数据发生异常,导入失败！", 2);
                         return false;
                     }
                     var result = e.currentTarget.result;
@@ -57,12 +57,12 @@ $(function() {
                     for(var workSpaceItem in workSpaceItems){
                         dbUtil.save(workSpaceItems[workSpaceItem]);
                     }
-                    alertMsg("导入成功！", 1);
+                    pageUtil.alertMsg("导入成功！", 1);
                     loadWorkSpaces();
                 }
                 reader.readAsText(file);
             } else {
-                alertMsg("文件类型不正确！", 2);
+                pageUtil.alertMsg("文件类型不正确！", 2);
             }
         }
 	    $("#importFileSelect").val("");
@@ -83,7 +83,6 @@ var loadWorkSpaces = function() {
 var buildDataList = function(workSpaceItems){
     $("#workSpacesDiv").html("");
     var tableHtml = ""
-    
     // 排序
     var sortedObjKeys = Object.keys(workSpaceItems).sort();
     
@@ -93,14 +92,15 @@ var buildDataList = function(workSpaceItems){
         tableHtml = tableHtml + "<th scope='row'>" + workSpaceItem.workSpaceName + "</th>";
         tableHtml = tableHtml + "<td>" + (workSpaceItem.saveDataTime ? workSpaceItem.saveDataTime : "未保存") + "</td>";
         tableHtml = tableHtml + "<td><div class='btn-group' role='group' aria-label='操作'>";
-        tableHtml = tableHtml + "<button type='button' class='btn btn-success saveAllTabsBtn' data-fid='" + workSpaceItem.fid + "'>保存当前打开的页面</button>";
-        tableHtml = tableHtml + "<button type='button' class='btn btn-primary switch2WorkSpaceBtn' data-fid='" + workSpaceItem.fid + "'>切换</button>";
-        tableHtml = tableHtml + "<button type='button' class='btn btn-danger delWorkSpaceBtn' data-fid='" + workSpaceItem.fid + "'>删除</button>";
+        tableHtml = tableHtml + "<button type='button' class='btn btn-outline-success saveAllTabsBtn' data-fid='" + workSpaceItem.fid + "'>保存当前打开的页面</button>";
+        tableHtml = tableHtml + "<button type='button' class='btn btn-outline-primary switch2WorkSpaceBtn' data-fid='" + workSpaceItem.fid + "'>切换</button>";
+        tableHtml = tableHtml + "<button type='button' class='btn btn-outline-danger delWorkSpaceBtn' data-fid='" + workSpaceItem.fid + "'>删除</button>";
+        tableHtml = tableHtml + "<button type='button' class='btn btn-outline-dark adminWorkSpaceBtn' data-fid='" + workSpaceItem.fid + "'>管理</button>";
         tableHtml = tableHtml + "</div></td>";
         tableHtml = tableHtml + "</tr>";
     }
     
-    $("#workSpacesDiv").append(tableHtml);
+    $("#workSpacesDiv").html(tableHtml);
     
     // ======================注册事件==========================================
     // 保存当前打开的所有tab到空间
@@ -109,11 +109,11 @@ var buildDataList = function(workSpaceItems){
         dbUtil.findById(fid, workSpaceItem => {
             
             if(!workSpaceItem) {
-               alertMsg("该工作区不存在", 2);
+               pageUtil.alertMsg("该工作区不存在", 2);
                return false;
            }
            if(workSpaceItem.saveDataTime) {
-               confirmModal("确定覆盖工作区【" + workSpaceItem.workSpaceName + "】吗?", function() {
+               pageUtil.confirmModal("确定覆盖工作区【" + workSpaceItem.workSpaceName + "】吗?", function() {
                    saveAllTabs(workSpaceItem);
                });
            } else {
@@ -130,11 +130,11 @@ var buildDataList = function(workSpaceItems){
         dbUtil.findById(fid, workSpaceItem => {
             
             if(!workSpaceItem) {
-                alertMsg("该工作区不存在", 2);
+                pageUtil.alertMsg("该工作区不存在", 2);
                 return false;
             }
-            if(workSpaceItem.spaceTabs) {
-                confirmModal("确定切换到工作区【" + workSpaceItem.workSpaceName + "】吗?", function() {
+            if(workSpaceItem.spaceTabs && workSpaceItem.spaceTabs.length > 0) {
+                pageUtil.confirmModal("确定切换到工作区【" + workSpaceItem.workSpaceName + "】吗?", function() {
                     closeAllTabs();
                     for(var i = (workSpaceItem.spaceTabs.length - 1); i >= 0; i--) {
                         var tab = workSpaceItem.spaceTabs[i];
@@ -148,7 +148,7 @@ var buildDataList = function(workSpaceItems){
                 });
 
             } else {
-                alertMsg("该工作区中没有页面", 2);
+                pageUtil.alertMsg("该工作区中没有页面", 2);
             }
             
         });
@@ -160,22 +160,27 @@ var buildDataList = function(workSpaceItems){
         dbUtil.findById(fid, workSpaceItem => {
             
             if(workSpaceItem && workSpaceItem.fid) {
-                confirmModal("确定删除工作区【" + workSpaceItem.workSpaceName + "】吗?", function() {
+                pageUtil.confirmModal("确定删除工作区【" + workSpaceItem.workSpaceName + "】吗?", function() {
                     //              if((fid in publicWorkSpaceItems) && (delete publicWorkSpaceItems[fid])){
                     dbUtil.del(fid);
                     loadWorkSpaces();
-                    alertMsg("删除成功", 1);
+                    pageUtil.alertMsg("删除成功", 1);
                     //              } else {
-                    //                  alertMsg("该工作区不存在", 2);  
+                    //                  pageUtil.alertMsg("该工作区不存在", 2);  
                     //              }
                 });
             } else {
-                alertMsg("该工作区不存在", 2);
+                pageUtil.alertMsg("该工作区不存在", 2);
             }
             
         });
         
         return false;
+    });
+    
+    $(".adminWorkSpaceBtn").click(e => {
+        var fid = $(e.target).data("fid");
+        window.location.href = "./spackAdmin.html?fid=" + fid;
     });
 }
 
@@ -185,7 +190,7 @@ function saveAllTabs(workSpaceItem){
 			workSpaceItem.saveDataTime = nowFormatDate(); 
 			workSpaceItem.spaceTabs = new Array();
 			$.each( tabs, function(i, tab){
-				var storageTab = {};
+				var storageTab = new TabItem();
 				storageTab.id = tab.id
 				storageTab.url = tab.url;
 				storageTab.title = tab.title;
@@ -193,31 +198,9 @@ function saveAllTabs(workSpaceItem){
 			});
 			dbUtil.save(workSpaceItem);
 			loadWorkSpaces();
-			alertMsg("保存成功！", 1);
+			pageUtil.alertMsg("保存成功！", 1);
 		});
 	}
-}
-
-function confirmModal(msg, okFunction){
-	if(msg){
-		$("#confirmModalBody").text(msg);
-	} else {
-		$("#confirmModalBody").text("");
-	}
-	$("#confirmModalOkBtn").unbind("click");
-	if(okFunction){
-		$("#confirmModalOkBtn").click(e => {
-			$('#confirmModal').modal('hide');
-			okFunction(e);
-			return false;
-		});
-	} else {
-		$("#confirmModalOkBtn").click(e => {
-			$('#confirmModal').modal('hide');
-			return false;
-		});
-	}
-	$('#confirmModal').modal();
 }
 
 function closeAllTabs(){
@@ -271,14 +254,4 @@ function nowFormatDate() {
             + " " + hours + seperator2 + minutes
             + seperator2 + seconds;
     return currentdate;
-}
-
-function alertMsg(msg, type){
-	if(type && type == 1){
-		$("#successMsg").text(msg);
-		$("#successDiv").show();
-	} else {
-		$("#faildMsg").text(msg);
-		$("#faildDiv").show();
-	}
 }

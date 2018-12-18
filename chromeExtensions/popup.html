@@ -13,29 +13,19 @@
 		</style>
 	</head>
 	<body>
-		<div class="p-3 mb-2 bg-primary text-white">version: 0.0.7</div>
-		<div class="alert alert-success" id="successDiv" role="alert" style="display: none;">
-				<span id="successMsg">successMsg</span>
-				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-				</button>
-		</div>
-		
-		<div class="alert alert-danger" id="faildDiv" role="alert" style="display: none;">
-				<span id="faildMsg">faildMsg</span>
-				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-				</button>
-		</div>
+		<div class="p-3 mb-2 bg-primary text-white">version: 0.0.8</div>
+		<div id="alertsDiv"></div>
 		<form class="form-inline">
 			<div class="form-group mx-sm-3 mb-2">
 				<input type="text" class="form-control" placeholder="工作区名称" id="newWorkSpaceNameInput" />
 			</div>
-			<input type="button" value="新建工作区" id="newWorkSpaceBtn"  class="btn btn-primary mb-2" />
-			<input type="button" value="关闭所有打开的页面" id="closeAllTabsBtn"  class="btn btn-danger mb-2" />
-			<input type="button" value="导出数据" id="exportBtn" class="btn btn-info mb-2" />
-			<input type="file" id="importFileSelect" accept=".json" style="display: none;" />
-			<input type="button" value="导入数据" id="importBtn" class="btn btn-success mb-2" />
+			<div class='btn-group' role='group' aria-label='操作'>
+    			<input type="button" value="新建工作区" id="newWorkSpaceBtn"  class="btn btn-outline-primary mb-2" />
+    			<input type="button" value="关闭所有打开的页面" id="closeAllTabsBtn"  class="btn btn-outline-danger mb-2" />
+    			<input type="button" value="导出数据" id="exportBtn" class="btn btn-outline-info mb-2" />
+    			<input type="file" id="importFileSelect" accept=".json" style="display: none;" />
+    			<input type="button" value="导入数据" id="importBtn" class="btn btn-outline-success mb-2" />
+			</div>
 		</form>
 
 		
@@ -50,21 +40,6 @@
 			<tbody id="workSpacesDiv">
 			</tbody>
 		</table>
-
-		<!-- Modal -->
-		<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="确认" aria-hidden="true">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-body" id="confirmModalBody">
-						...
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-						<button type="button" class="btn btn-success" id="confirmModalOkBtn">确定</button>
-					</div>
-				</div>
-			</div>
-		</div>
 
 		
 		<script type="text/javascript" src="js/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
