@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "tabsWorkSpace",
-	"version": "0.0.9-dev",
+	"version": "0.0.9.BUILD-SNAPSHOT",
 	"description": "chrome和QQ浏览器有个好用的功能,就是当你直接关闭浏览器时,如果当时打开了多个tab,在你再次打开浏览器时,可以在历史记录(最近关闭的标签)一次恢复他们.但是如果你忘记了恢复,并且开了一些网页并关闭过,再想恢复时,发现找不到了...",
 	"icons":
 	{
