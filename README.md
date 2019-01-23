@@ -44,7 +44,14 @@ chrome和QQ浏览器有个好用的功能(也许其他浏览器也有,没试过)
 * 工作区切换(目前切换时不会保存当前的,所以需要先手动保存再切换)
 * 工作区删除
 * 数据导入导出
+* 管理工作区中保存的页面
+* 数据在线备份,恢复(多电脑间的数据同步)-- 将在0.0.推出
   ​
 
-据说国产的基于webkit的浏览器都支持,如QQ浏览器,360浏览器等,不过我只测试了Chrome和QQ浏览器
-功能的话目前应该够用了,不够的话到时候再加.工作区内的页面管理个人感觉不是太有必要,大不了切换后关闭一些再重新保存,毕竟这不是收藏功能,只是工作状态的暂存
+理论上基于 chrome 的浏览器都支持,如QQ浏览器,360浏览器等,不过我只测试了Chrome和QQ浏览器
+功能的话目前应该够用了,不够的话到时候再加.
+![主界面](https://raw.githubusercontent.com/KeRan213539/tabsWorkSpace/master/publish/1.png)
+![提示信息](https://raw.githubusercontent.com/KeRan213539/tabsWorkSpace/master/publish/2.png)
+![确认框](https://raw.githubusercontent.com/KeRan213539/tabsWorkSpace/master/publish/3.png)
+![数据导出](https://raw.githubusercontent.com/KeRan213539/tabsWorkSpace/master/publish/4.png)
+![工作区管理](https://raw.githubusercontent.com/KeRan213539/tabsWorkSpace/master/publish/5.png)
