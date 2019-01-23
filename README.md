@@ -19,6 +19,7 @@
 * 增加版本号显示
 
 # tabsWorkSpace(tabs工作区)
+[点此安装插件(chrome网上应用商店)](https://chrome.google.com/webstore/detail/tabsworkspace/fakanieljljgbdnciabflgnnojidifjl)
 经常遇到这样的情况: 开了一大堆页面,或者从搜索引擎搜了一堆,还没来得及看,下班了...有些网页没必要收藏,只是当资料查看,或者还没看,不知道值不值得收藏.这时可以采取不关电脑,第二天继续,但是有些情况下不得不关机或者关闭浏览器:
 
 * 众所周知windows有些时候不得不重启
