@@ -3,12 +3,16 @@
 ## v0.0.8
 * 修改按钮样式
 * 新增工作区内的tabs管理功能,可以查看某个tab或者从工作区中移除它
+
 ## v0.0.7
 * 修复BUG: 导入时,QQ浏览器中拿到的 file.type 为空导致导入失败
+
 ## v0.0.6
 * 修复BUG
+
 ## v0.0.5
 * 修复BUG
+
 ## v0.0.4
 * 重构代码
 * 数据存储由于 storage 有数据大小限制,改为 IndexedDB
@@ -20,6 +24,7 @@
 
 # tabsWorkSpace(tabs工作区)
 [点此安装插件(chrome网上应用商店)](https://chrome.google.com/webstore/detail/tabsworkspace/fakanieljljgbdnciabflgnnojidifjl)
+
 经常遇到这样的情况: 开了一大堆页面,或者从搜索引擎搜了一堆,还没来得及看,下班了...有些网页没必要收藏,只是当资料查看,或者还没看,不知道值不值得收藏.这时可以采取不关电脑,第二天继续,但是有些情况下不得不关机或者关闭浏览器:
 
 * 众所周知windows有些时候不得不重启
@@ -50,6 +55,7 @@ chrome和QQ浏览器有个好用的功能(也许其他浏览器也有,没试过)
   ​
 
 理论上基于 chrome 的浏览器都支持,如QQ浏览器,360浏览器等,不过我只测试了Chrome和QQ浏览器
+
 功能的话目前应该够用了,不够的话到时候再加.
 ![主界面](https://raw.githubusercontent.com/KeRan213539/tabsWorkSpace/master/publish/1.png)
 ![提示信息](https://raw.githubusercontent.com/KeRan213539/tabsWorkSpace/master/publish/2.png)
