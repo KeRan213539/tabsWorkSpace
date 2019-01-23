@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="utf-8" />
+        <title>tabs工作区--数据同步</title>
+        <link rel="stylesheet" href="css/bootstrap.min.css" crossorigin="anonymous">
+        <style>
+            body {
+                margin-top: 20px;
+                width: 700px;
+                min-height: 100px;
+            }
+        </style>
+    </head>
+	<body>
+        <div id="alertsDiv"></div>
+        <div class="card border-dark mb-3" style="max-width: 45rem;">
+          <div class="card-header">数据同步
+              <span style="margin-left: 10px; font-weight: bold;">当前使用Token:</span>
+              <span id="tokenSpan" style="margin-left: 5px;"></span>
+              <span style="margin-left: 10px; font-weight: bold;">当前使用文件ID:</span>
+              <span id="fileIdSpan" style="margin-left: 5px;"></span>
+          </div>
+          <div class="card-body">
+            <div class='btn-group' role='group' aria-label='同步操作'>
+                <input type="button" value="上传数据" id="uploadData" class="btn btn-outline-info mb-2" />
+                <input type="button" value="下载并覆盖本地数据" id="downloadData" class="btn btn-outline-success mb-2" />
+                <input type="button" value="更新Token" id="updateToken" class="btn btn-outline-primary mb-2" />
+                <input type="button" value="更新文件ID" id="updateFileId" class="btn btn-outline-primary mb-2" />
+                <a href="/syncHelp.html" target="_blank" class="btn btn-outline-warning mb-2">使用帮助</a>
+            </div>
+          </div>
+          <div class="card-footer bg-transparent border-success"><input type="button" value="返回" id="backBtn" class="btn btn-outline-primary mb-2" /></div>
+        </div>
+	    
+	    <script type="text/javascript" src="js/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="js/bootstrap.min.js" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="js/common.js"></script>
+        <script type="text/javascript" src="js/sync.js" ></script>
+	</body>
+</html>

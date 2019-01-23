@@ -67,7 +67,6 @@ $(function() {
         }
 	    $("#importFileSelect").val("");
 	});
-	
 	dbUtil.initDB(loadWorkSpaces);
 });
 

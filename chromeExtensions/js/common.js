@@ -14,19 +14,30 @@ var WorkSpaceItem = function() {
 var dbUtil = {
     db: {},
     initDB: (successFun) => {
-        var request = window.indexedDB.open("tabsWorkSpaceDB", 1);
+        var request = window.indexedDB.open("tabsWorkSpaceDB", 2);
         request.onerror = function(event) {
             console.log("打开DB失败", event);
         }
         request.onupgradeneeded = function(event) {
             console.log("DB升级中...");
             var db = event.target.result;
-            var objectStore = db.createObjectStore("workSpace", {
-                keyPath: "fid"
-            });
-            objectStore.createIndex('fid', 'fid', {
-                unique: true
-            });
+            if(!db.objectStoreNames.contains("workSpace")){
+                var objectStore = db.createObjectStore("workSpace", {
+                    keyPath: "fid"
+                });
+                objectStore.createIndex('fid', 'fid', {
+                    unique: true
+                });
+            }
+            if(!db.objectStoreNames.contains("tokenStore")){
+                var githubTokenStore = db.createObjectStore("tokenStore", {
+                    keyPath: "fid"
+                });
+                githubTokenStore.createIndex('fid', 'fid', {
+                    unique: true
+                });
+            }
+            console.log("DB升级中完成!");
             // onupgradeneeded 执行完后会再到 onsuccess 的
         };
         request.onsuccess = function(event) {
@@ -38,6 +49,49 @@ var dbUtil = {
     },
     getObjStore: () => {
         return dbUtil.db.transaction(["workSpace"], "readwrite").objectStore("workSpace");
+    },
+    getTokenStore: () => {
+        return dbUtil.db.transaction(["tokenStore"], "readwrite").objectStore("tokenStore");
+    },
+    updateSyncToken: strToken =>{
+        var tokenObj = {};
+        tokenObj.fid = "githubToken";
+        tokenObj.strToken = strToken;
+        dbUtil.getTokenStore().put(tokenObj);
+    },
+    getSyncToken: callbackFn => {
+        var request = dbUtil.getTokenStore().get("githubToken");
+        request.onerror = function(event) {
+            callbackFn();
+        }
+        request.onsuccess = function(event) {
+            var tokenObj = request.result;
+            if(tokenObj){
+                callbackFn(tokenObj.strToken);
+            } else {
+                callbackFn();
+            }
+        }
+    },
+    updateSyncFileId: strFileId =>{
+        var gistObj = {};
+        gistObj.fid = "gistId";
+        gistObj.strGistObj = strFileId;
+        dbUtil.getTokenStore().put(gistObj);
+    },
+    getSyncFileId: callbackFn => {
+        var request = dbUtil.getTokenStore().get("gistId");
+        request.onerror = function(event) {
+            callbackFn();
+        }
+        request.onsuccess = function(event) {
+            var gistObj = request.result;
+            if(gistObj){
+                callbackFn(gistObj.strGistObj);
+            } else {
+                callbackFn();
+            }
+        }
     },
     del: fid => {
         dbUtil.getObjStore().delete(fid);
@@ -147,5 +201,63 @@ var pageUtil = {
             });
         }
         $('#confirmModal').modal();
+    }
+}
+
+var syncUtil = {
+    githubApiBaseUrl: "https://api.github.com/",
+    getSyncToken: callBackFn => {
+        dbUtil.getSyncToken(strToken => {
+            if(strToken) {
+                callBackFn(strToken);
+            } else {
+                strToken = $.trim(prompt("请输入github的 Personal access token, 如何获得Token请查看使用帮助"));
+                if(strToken.length > 0){
+                    dbUtil.updateSyncToken(strToken);
+                    callBackFn(strToken);
+                }
+            }
+        });
+    },
+    getSyncFileId: callBackFn => {
+        dbUtil.getSyncFileId(strFileId => {
+            if(strFileId) {
+                callBackFn(strFileId);
+            } else {
+                strFileId = $.trim(prompt("请输入上传后返回的文件ID"));
+                if(strFileId.length > 0){
+                    dbUtil.updateSyncFileId(strFileId);
+                    callBackFn(strFileId);
+                }
+            }
+        });
+    },
+    uploadData: () => {
+        var postUrl = syncUtil.githubApiBaseUrl + "gists";
+        syncUtil.getSyncToken(strToken => {
+            if(strToken){
+                dbUtil.findAll(workSpaceItems => {
+                    var gistContent = JSON.stringify(workSpaceItems, null, 4);
+                    var postData = {};
+                    postData.description = "tabsWorkspace 浏览器插件数据备份";
+                    postData.public = false;
+                    var fileData = {};
+                    fileData.content = gistContent;
+                    postData.files = {"tabsWorkspaceData": {"content": gistContent}};
+                    console.log(postData)
+                    $.ajax({
+                       type: "POST",
+                       url: postUrl,
+                       data: JSON.stringify(postData, null, 4),
+                       dataType: "json",
+                       contentType: "application/json",
+                       headers: {"Content-Type": "application/json", "Authorization": "Bearer " + strToken},
+                       success: function(msg){
+                         console.log(msg);
+                       }
+                    });
+                });
+            }
+        });
     }
 }
